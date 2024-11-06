@@ -1,5 +1,5 @@
-import torch
 from torch import nn, optim
+import torch
 from torch.utils.data import DataLoader
 from transformers import T5ForConditionalGeneration, RobertaTokenizer
 from torch.utils.tensorboard import SummaryWriter
@@ -13,6 +13,10 @@ model_checkpoint = 'Salesforce/codet5-large'
 
 # Load model and tokenizer
 base_model = T5ForConditionalGeneration.from_pretrained(model_checkpoint).get_encoder()  # Load only the encoder part
+# Freeze T5 encoder layers
+for param in base_model.parameters():
+    param.requires_grad = False
+    
 tokenizer = RobertaTokenizer.from_pretrained(model_checkpoint)
 tokenizer.add_special_tokens({"additional_special_tokens": ["<t_cls>"]})
 
@@ -27,11 +31,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Hyper parameters:
-batch_size = 4
+batch_size = 16
 num_epochs = 10
-# learning_rate = 5e-5
+learning_rate = 5e-5
 # learning_rate = 1e-5
-learning_rate = 1e-4
+# learning_rate = 1e-4
 
 # Initialize the dataset and DataLoader
 train_dataset = BugLocalizationDataset(csv_file=training_file, tokenizer=tokenizer)

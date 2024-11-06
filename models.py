@@ -15,6 +15,10 @@ class BugLocalizationModel(nn.Module):
         self.W_q_end = nn.Linear(hidden_size, hidden_size, bias=False)
         self.W_k_start = nn.Linear(hidden_size, hidden_size, bias=False)
         self.W_k_end = nn.Linear(hidden_size, hidden_size, bias=False)
+        
+        for param in [self.W_q_start, self.W_q_end, self.W_k_start, self.W_k_end]:
+            param.requires_grad = True  # This should be true by default, but double-checking
+
 
     def forward(self, input_ids):
         # Add the <t_cls> token at the start of input_ids
