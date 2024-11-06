@@ -13,7 +13,8 @@ class BugLocalizationModel(nn.Module):
         # Define projection layers for start and end position attention queries
         self.W_q_start = nn.Linear(hidden_size, hidden_size, bias=False)
         self.W_q_end = nn.Linear(hidden_size, hidden_size, bias=False)
-        self.W_k = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.W_k_start = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.W_k_end = nn.Linear(hidden_size, hidden_size, bias=False)
 
     def forward(self, input_ids):
         # Add the <t_cls> token at the start of input_ids
@@ -30,8 +31,8 @@ class BugLocalizationModel(nn.Module):
         query_start = self.W_q_start(t_cls_embedding)  # Project <t_cls> embedding to start query
 
         # Project hidden states to keys for attention
-        keys = self.W_k(hidden_states)  # Shape: (batch_size, seq_len, hidden_size)
-        attention_scores_start = torch.matmul(query_start.unsqueeze(1), keys.transpose(-1, -2)).squeeze(1)  # (batch_size, seq_len)
+        keys_start = self.W_k_start(hidden_states)  # Shape: (batch_size, seq_len, hidden_size)
+        attention_scores_start = torch.matmul(query_start.unsqueeze(1), keys_start.transpose(-1, -2)).squeeze(1)  # (batch_size, seq_len)
         attention_probs_start = torch.softmax(attention_scores_start, dim=-1)
         
         # Predicted start position
@@ -41,7 +42,9 @@ class BugLocalizationModel(nn.Module):
         start_embeddings = hidden_states[torch.arange(hidden_states.size(0)), start_pos, :]  # Shape: (batch_size, hidden_size)
         query_end = self.W_q_end(start_embeddings)  # Project start embedding to end query
 
-        attention_scores_end = torch.matmul(query_end.unsqueeze(1), keys.transpose(-1, -2)).squeeze(1)  # (batch_size, seq_len)
+        # Project hidden states to keys for attention
+        keys_end = self.W_k_end(hidden_states)  # Shape: (batch_size, seq_len, hidden_size)
+        attention_scores_end = torch.matmul(query_end.unsqueeze(1), keys_end.transpose(-1, -2)).squeeze(1)  # (batch_size, seq_len)
         attention_probs_end = torch.softmax(attention_scores_end, dim=-1)
         
         # Predicted end position
