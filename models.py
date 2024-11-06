@@ -47,7 +47,4 @@ class BugLocalizationModel(nn.Module):
         attention_scores_end = torch.matmul(query_end.unsqueeze(1), keys_end.transpose(-1, -2)).squeeze(1)  # (batch_size, seq_len)
         attention_probs_end = torch.softmax(attention_scores_end, dim=-1)
         
-        # Predicted end position
-        end_pos = torch.argmax(attention_probs_end, dim=1)  # Shape: (batch_size,)
-
         return attention_probs_start, attention_probs_end
