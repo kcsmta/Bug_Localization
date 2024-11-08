@@ -31,11 +31,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Hyper parameters:
-batch_size = 16
+batch_size = 32
 num_epochs = 10
-learning_rate = 5e-5
-# learning_rate = 1e-5
-# learning_rate = 1e-4
+# learning_rate = 5e-5 # not work
+# learning_rate = 1e-5 # not work
+learning_rate = 1e-6
 
 # Initialize the dataset and DataLoader
 train_dataset = BugLocalizationDataset(csv_file=training_file, tokenizer=tokenizer)
